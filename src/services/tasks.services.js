@@ -1,5 +1,5 @@
 const { TasksModel } = require('../models/models');
-const { TASK_STATUS: { STATUS_CODE } } = require('../utilities/constants');
+const { PRIORITY } = require('../utilities/constants');
 const taskService = {};
 
 taskService.createTask = async (taskData) => {
@@ -35,6 +35,12 @@ taskService.getUserTask = async (filterData) => {
 
 taskService.updateTaskData = async (whereData, updateData) => {
 	return await TasksModel.updateOne(whereData, updateData);
+}
+
+taskService.updatePriority = async (updateData) => {
+	return (
+		await TasksModel.bulkWrite(updateData)
+	);
 }
 
 module.exports = taskService;
