@@ -23,7 +23,7 @@ constants.TASK_STATUS = {
 		1: 'TODO',
 		2: 'IN_PROGRESS',
 		3: 'DONE',
-		
+
 	},
 };
 
@@ -39,7 +39,17 @@ constants.SUB_TASK_MESSAGE = {
 	2: 'DELETED',
 };
 
-constants.SALT_ROUNDS = 10;
+constants.TWILIO_PRIORITY = {
+	P1: 0,
+	P2: 1,
+	P3: 2,
+};
+
+constants.USER_NOTIFICATION_STATUS = {
+	NOT_NOTIFIED: 0,
+	NOTIFIED: 1,
+	IN_PROGRESS: 2,
+}
 
 constants.JWT_PRIVATE_KEY = '<PRIVATE-KEY>';
 

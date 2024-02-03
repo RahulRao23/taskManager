@@ -1,4 +1,5 @@
 const userServices = require('../services/users.services');
+const { getUserTask } = require('../services/tasks.services');
 const STATUS = require('../../config/statusCodes.json');
 const CONSTANTS = require('../utilities/constants');
 
@@ -62,6 +63,41 @@ userController.createUser = async (req, res) => {
 
 	} catch (error) {
 		console.log('Create User ERROR: ', error);
+		return res.status(STATUS.INTERNAL_SERVER_ERROR).send({
+			error: 'INTERNAL_SERVER_ERROR',
+			message: error.message ? error.message : 'Something went wrong' + error,
+		});
+	}
+}
+
+userController.getCallbackResponse = async (req, res) => {
+	try {
+		const { CallSid, CallStatus } = res.locals.reqParams;
+
+		const taskData = await getUserTask({
+			call_sid: CallSid,
+		});
+
+		if (!taskData || taskData.status === CONSTANTS.TASK_STATUS.STATUS_CODE.DELETED) {
+			return res.status(STATUS.UNAUTHORIZED).send({
+				error: 'UNAUTHORIZED',
+				message: 'Task does not exist.',
+			});
+		}
+
+		const CALL_RESPONSE = ['in-progress', 'completed', 'busy', 'no-answer'];
+
+		if (CALL_RESPONSE.includes(CallStatus)) {
+			taskData.user_notified = CONSTANTS.USER_NOTIFICATION_STATUS.NOTIFIED;
+			await taskData.save();
+		}
+
+		return res.status(STATUS.SUCCESS).send({
+			message: 'SUCCESS',
+			data: {},
+		});
+	} catch (error) {
+		console.log('getCallbackResponse ERROR: ', error);
 		return res.status(STATUS.INTERNAL_SERVER_ERROR).send({
 			error: 'INTERNAL_SERVER_ERROR',
 			message: error.message ? error.message : 'Something went wrong' + error,

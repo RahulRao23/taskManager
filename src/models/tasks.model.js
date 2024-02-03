@@ -9,6 +9,8 @@ const TasksSchema = new mongoose.Schema(
 		due_date: { type: Schema.Types.Date },
 		status: { type: Schema.Types.Number, default: 1 },
 		priority: { type: Schema.Types.Number, enum: [0, 1, 2, 3], default: 0 },
+		user_notified: { type: Schema.Types.Number, default: 0 },
+		call_sid: { type: Schema.Types.String },
 	},
 	{
 		timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
