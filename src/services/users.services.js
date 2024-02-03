@@ -24,27 +24,4 @@ userServices.updateUser = async (whereClause, userData) => {
 	return await UserModel.updateOne(whereClause, userData);
 };
 
-userServices.getInactiveChatGroupMembers = async (roomId) => {
-	return await UserModel.find({
-		$and: [
-			{
-				$or: [
-					{ auth_token: { $exists: false } },
-					{ auth_token: '' },
-				]
-			},
-			{
-				chat_groups: { $elemMatch: { $eq: roomId } }
-			}
-		]
-	});
-}
-
-userServices.getFriendsList = async (friendsIds) => {
-	return await UserModel.find({
-		_id: { $in: friendsIds }
-	})
-	.select('_id name email');
-}
-
 module.exports = userServices;
