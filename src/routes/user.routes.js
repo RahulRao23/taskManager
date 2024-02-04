@@ -8,9 +8,10 @@ const getRequestParamsMiddleware = require('../middlewares/getRequestParams.midd
 
 const userRouter = express.Router();
 
-/* User Routes */
+/* Debug API: Create a user by providing a phone_number for testing */
 userRouter.post('/createUser', getRequestParamsMiddleware, createUser);
 
+/* Callback API to update voice status from twilio */
 userRouter.post('/getCallbackResponse', getRequestParamsMiddleware, getCallbackResponse);
 
 /* Error handling */

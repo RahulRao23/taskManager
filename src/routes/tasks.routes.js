@@ -11,12 +11,16 @@ const verifyTokenMiddleware = require('../middlewares/validateUser.middleware');
 
 const taskRouter = express.Router();
 
+/* 3. Get all user task(with filter like priority, due date and proper pagination etc) */
 taskRouter.get('/getAllUserTask', getRequestParamsMiddleware, verifyTokenMiddleware, getAllUserTask);
 
+/* 1. Create task - input is title, description and due_date with jwt auth token */
 taskRouter.post('/createTask', getRequestParamsMiddleware, verifyTokenMiddleware, createTask);
 
+/* 5. Update task- due_date, status-”TODO” or “DONE” can be changed */
 taskRouter.post('/updateTask', getRequestParamsMiddleware, verifyTokenMiddleware, updateTask);
 
+/* 7. Delete task(soft deletion) */
 taskRouter.post('/deleteTask', getRequestParamsMiddleware, verifyTokenMiddleware, deleteTask);
 
 /* Error handling */
