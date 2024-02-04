@@ -7,7 +7,9 @@ const jwt = require('jsonwebtoken');
 
 const userController = {};
 
-/** User Login
+/** API to create a dummy user for testing.
+ * If phone_number already exists then generate new auth_token
+ * else create new user in DB and generate new auth_token
  * 
  * @param {{
 * 	phone_number: String
@@ -70,6 +72,12 @@ userController.createUser = async (req, res) => {
 	}
 }
 
+/** Callback API to update voice status from twilio
+ * 
+ * @param { {CallSid: String, CallStatus: String } } req 
+ * @param {*} res 
+ * @returns 
+ */
 userController.getCallbackResponse = async (req, res) => {
 	try {
 		const { CallSid, CallStatus } = res.locals.reqParams;

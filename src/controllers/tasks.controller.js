@@ -22,13 +22,14 @@ taskController.createTask = async (req, res) => {
 		const { title, description, due_date } = res.locals.reqParams;
 		const userData = res.locals.userData;
 
+		/* Validate request parameters */
 		if (!title || !description || !due_date) {
 			return res.status(STATUS.BAD_REQUEST).send({
 				error: 'BAD_REQUEST',
 				message: 'Required data not sent',
 			});
 		}
-
+		/* Validate if due_date is of correct format */
 		const dueDate = validateDate(due_date);
 
 		/* If due_date 
@@ -54,14 +55,14 @@ taskController.createTask = async (req, res) => {
 			priority: priority,
 		});
 
-		/* Return user data in response */
+		/* Return new task data in response */
 		return res.status(STATUS.SUCCESS).send({
 			message: 'SUCCESS',
 			data: newTask,
 		});
 
 	} catch (error) {
-		console.log('Create task ERROR: ', error);
+		console.log('CreateTask ERROR: ', error);
 		return res.status(STATUS.INTERNAL_SERVER_ERROR).send({
 			error: 'INTERNAL_SERVER_ERROR',
 			message: error.message ? error.message : 'Something went wrong' + error,
@@ -69,12 +70,15 @@ taskController.createTask = async (req, res) => {
 	}
 }
 
-/** Get all user task(with filter like priority, due date and proper pagination etc) */
+/** Get all user task(with filter like priority, due date and proper pagination etc)
+ * Filter tasks by priority, due_date, status and pass a string in search param to get all tasks that contains this string
+ */
 taskController.getAllUserTask = async (req, res) => {
 	try {
 		const { priority, due_date, status, search, page, limit } = res.locals.reqParams;
 		const userData = res.locals.userData;
 
+		/* Validate request parameters */
 		if (!page || !limit) {
 			return res.status(STATUS.BAD_REQUEST).send({
 				error: 'BAD_REQUEST',
@@ -82,6 +86,7 @@ taskController.getAllUserTask = async (req, res) => {
 			});
 		}
 
+		/* If status is passed then validate status code */
 		if (
 			status &&
 			(
@@ -96,6 +101,7 @@ taskController.getAllUserTask = async (req, res) => {
 			});
 		}
 
+		/* Validate query parameters if passed */
 		const queryData = { 
 			user_id: userData._id,
 			status: status ? status : { $ne: CONSTANTS.TASK_STATUS.STATUS_CODE.DELETED }
@@ -108,6 +114,7 @@ taskController.getAllUserTask = async (req, res) => {
 			queryData.title = { $regex: regex };
 		}
 
+		/* Get paginated task list */
 		const taskList = await getAllUserTasksAsPOJO(
 			queryData,
 			{
@@ -116,16 +123,20 @@ taskController.getAllUserTask = async (req, res) => {
 			}
 		);
 
+		/** Mapping status code -> status message 
+		 * Eg: If status = 1 (i.e. TODO) in DB
+		 * Replace status field in response as "TODO"
+		*/
 		taskList.forEach(task => task.status = CONSTANTS.TASK_STATUS.STATUS_MESSAGE[task.status]);
 
-		/* Return user data in response */
+		/* Return task list in response */
 		return res.status(STATUS.SUCCESS).send({
 			message: 'SUCCESS',
 			data: taskList,
 		});
 
 	} catch (error) {
-		console.log('Get all user task ERROR: ', error);
+		console.log('getAllUserTask ERROR: ', error);
 		return res.status(STATUS.INTERNAL_SERVER_ERROR).send({
 			error: 'INTERNAL_SERVER_ERROR',
 			message: error.message ? error.message : 'Something went wrong' + error,
@@ -139,6 +150,7 @@ taskController.updateTask = async (req, res) => {
 		const { task_id, due_date, status } = res.locals.reqParams;
 		const userData = res.locals.userData;
 
+		/* Validate request parameters */
 		if (!task_id || (!due_date && !status)) {
 			return res.status(STATUS.BAD_REQUEST).send({
 				error: 'BAD_REQUEST',
@@ -151,6 +163,7 @@ taskController.updateTask = async (req, res) => {
 			_id: task_id,
 		});
 
+		/* If no task exists or task status is marked as deleted then return error in response. */
 		if (!taskData || taskData.status === CONSTANTS.TASK_STATUS.STATUS_CODE.DELETED) {
 			return res.status(STATUS.UNAUTHORIZED).send({
 				error: 'UNAUTHORIZED',
@@ -160,6 +173,7 @@ taskController.updateTask = async (req, res) => {
 
 		const updateData = {};
 
+		/* Validate due_date before updating */
 		if (due_date) {
 			const validDueDate = validateDate(due_date);
 			if(!validDueDate) {
@@ -172,6 +186,7 @@ taskController.updateTask = async (req, res) => {
 			updateData.due_date = validDueDate;
 		}
 
+		/* Validate status if passed before updating */
 		if(status) {
 			if (
 				status != CONSTANTS.TASK_STATUS.STATUS_CODE.TODO &&
@@ -194,6 +209,7 @@ taskController.updateTask = async (req, res) => {
 			updateData
 		);
 
+		/* If task is marked as "DONE" then update all sub task status as "COMPLETED" */
 		if(
 			status && 
 			status == CONSTANTS.TASK_STATUS.STATUS_CODE.DONE
@@ -201,7 +217,7 @@ taskController.updateTask = async (req, res) => {
 			await updateSubTaskData({
 				task_id: taskData._id,
 			}, {
-				status
+				status: CONSTANTS.SUB_TASK_STATUS.COMPLETE,
 			});
 		}
 		
@@ -226,6 +242,7 @@ taskController.deleteTask = async (req, res) => {
 		const { task_id } = res.locals.reqParams;
 		const userData = res.locals.userData;
 
+		/* Validate request parameters */
 		if (!task_id) {
 			return res.status(STATUS.BAD_REQUEST).send({
 				error: 'BAD_REQUEST',
@@ -238,6 +255,7 @@ taskController.deleteTask = async (req, res) => {
 			_id: task_id,
 		});
 
+		/* If no task exists or task status is marked as deleted then return error in response. */
 		if (!taskData || taskData.status === CONSTANTS.TASK_STATUS.STATUS_CODE.DELETED) {
 			return res.status(STATUS.UNAUTHORIZED).send({
 				error: 'UNAUTHORIZED',
@@ -252,6 +270,7 @@ taskController.deleteTask = async (req, res) => {
 			status: CONSTANTS.TASK_STATUS.STATUS_CODE.DELETED,
 		});
 
+		/* Update all sub tasks as "DELETED" on task deletion. */
 		await updateSubTaskData({
 			task_id: taskData._id,
 		}, {

@@ -21,6 +21,7 @@ subTaskController.createSubTask = async (req, res) => {
 		const { task_id, description } = res.locals.reqParams;
 		const userData = res.locals.userData;
 
+		/* Validate request parameters */
 		if (!task_id || !description) {
 			return res.status(STATUS.BAD_REQUEST).send({
 				error: 'BAD_REQUEST',
@@ -29,13 +30,16 @@ subTaskController.createSubTask = async (req, res) => {
 		}
 
 		const taskData = await getUserTask({ _id: task_id, user_id: userData._id });
+		/* If no task exists or task status is marked as deleted then return error in response. */
 		if (!taskData || taskData.status === CONSTANTS.TASK_STATUS.STATUS_CODE.DELETED) {
 			return res.status(STATUS.BAD_REQUEST).send({
 				error: 'BAD_REQUEST',
 				message: 'Task does not exist.',
 			});
 		}
-
+		/** If task is marked as done then you can not add sub tasks to it.
+		 * Update task status to "TODO" then add sub tasks
+		 */
 		if(taskData.status === CONSTANTS.TASK_STATUS.STATUS_CODE.DONE) {
 			return res.status(STATUS.BAD_REQUEST).send({
 				error: 'BAD_REQUEST',
@@ -49,7 +53,7 @@ subTaskController.createSubTask = async (req, res) => {
 			status: CONSTANTS.SUB_TASK_STATUS.INCOMPLETE,
 		});
 
-		/* Return user data in response */
+		/* Return sub task data in response */
 		return res.status(STATUS.SUCCESS).send({
 			message: 'SUCCESS',
 			data: newSubTask,
@@ -64,10 +68,18 @@ subTaskController.createSubTask = async (req, res) => {
 	}
 }
 
+/* Get all user sub tasks (with filter like task_id if passed) */
 subTaskController.getAllUserSubTasks = async (req, res) => {
 	try {
 		const { task_id, status } = res.locals.reqParams;
 		const userData = res.locals.userData;
+
+		if(!sub_task_id || !status) {
+			return res.status(STATUS.BAD_REQUEST).send({
+				error: 'BAD_REQUEST',
+				message: 'Required data not sent',
+			});
+		}
 
 		const queryData = {
 			user_id: userData._id,
@@ -77,7 +89,10 @@ subTaskController.getAllUserSubTasks = async (req, res) => {
 		if (task_id) queryData.task_id = task_id;
 
 		const userSubTasks = await getUserSubTasks(queryData);
-
+		/** Mapping status code -> status message 
+		 * Eg: If status = 1 (i.e. COMPLETE) in DB
+		 * Replace status field in response as "COMPLETE"
+		*/
 		userSubTasks.forEach(task => task.status = CONSTANTS.SUB_TASK_MESSAGE[task.status]);
 
 		return res.status(STATUS.SUCCESS).send({
@@ -136,9 +151,11 @@ subTaskController.updateSubTask = async (req, res) => {
 			status: { $ne: CONSTANTS.SUB_TASK_STATUS.DELETED }
 		});
 
+		/* Get completed and incomplete sub tasks count. */
 		const inCompleteSubTasks = subTasksList.filter(({status}) => status == CONSTANTS.SUB_TASK_STATUS.INCOMPLETE ).length;
 		const completedSubTasks = subTasksList.filter(({status}) => status == CONSTANTS.SUB_TASK_STATUS.COMPLETE ).length;
 
+		/* If no sub tasks are completed then mark task status as TODO */
 		if (!completedSubTasks) {
 			await updateTaskData({
 				_id: subTaskData.task_id
@@ -146,6 +163,7 @@ subTaskController.updateSubTask = async (req, res) => {
 				status: CONSTANTS.TASK_STATUS.STATUS_CODE.TODO
 			})
 		}
+		/* If atleast 1 sub task is completed and there are incomplete sub tasks then update task status as IN_PROGRESS */
 		else if (inCompleteSubTasks && completedSubTasks) {
 			await updateTaskData({
 				_id: subTaskData.task_id
@@ -153,6 +171,7 @@ subTaskController.updateSubTask = async (req, res) => {
 				status: CONSTANTS.TASK_STATUS.STATUS_CODE.IN_PROGRESS
 			});
 		}
+		/* If there are no incomplete sub tasks then update task status as DONE */
 		else if (!inCompleteSubTasks) {
 			await updateTaskData({
 				_id: subTaskData.task_id
@@ -223,9 +242,11 @@ subTaskController.deleteSubTask = async (req, res) => {
 			status: { $ne: CONSTANTS.SUB_TASK_STATUS.DELETED }
 		});
 
-		const inCompleteSubTasks = subTasksList.filter(({status}) => status == CONSTANTS.SUB_TASK_STATUS.INCOMPLETE );
+		/* Get completed and incomplete sub tasks count. */
+		const inCompleteSubTasks = subTasksList.filter(({status}) => status == CONSTANTS.SUB_TASK_STATUS.INCOMPLETE ).length;
 		const completedSubTasks = subTasksList.filter(({status}) => status == CONSTANTS.SUB_TASK_STATUS.COMPLETE ).length;
 
+		/* If no sub tasks are completed then mark task status as TODO */
 		if (!completedSubTasks) {
 			await updateTaskData({
 				_id: subTaskData.task_id
@@ -233,6 +254,7 @@ subTaskController.deleteSubTask = async (req, res) => {
 				status: CONSTANTS.TASK_STATUS.STATUS_CODE.TODO
 			})
 		}
+		/* If atleast 1 sub task is completed and there are incomplete sub tasks then update task status as IN_PROGRESS */
 		else if (inCompleteSubTasks && completedSubTasks) {
 			await updateTaskData({
 				_id: subTaskData.task_id
@@ -240,6 +262,7 @@ subTaskController.deleteSubTask = async (req, res) => {
 				status: CONSTANTS.TASK_STATUS.STATUS_CODE.IN_PROGRESS
 			});
 		}
+		/* If there are no incomplete sub tasks then update task status as DONE */
 		else if (!inCompleteSubTasks) {
 			await updateTaskData({
 				_id: subTaskData.task_id
