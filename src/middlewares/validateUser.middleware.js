@@ -20,6 +20,15 @@ const verifyAuthToken = async (req, res, next) => {
 
 		const decodedToken = jwt.decode(authToken);
 
+		if (!decodedToken) {
+			return next(
+				res.status(STATUS.BAD_REQUEST).send({
+					error: 'BAD_REQUEST',
+					message: 'Invalid auth_token.',
+				})
+			);
+		}
+
 		/* Validate user */
 		const userData = await userServices.getUserDetails({
 			_id: decodedToken.user_id,
@@ -58,7 +67,13 @@ const verifyAuthToken = async (req, res, next) => {
 		res.locals.decodedToken = decodedToken;
 		next();
 	} catch (error) {
-		
+		console.log({error});
+		return next(
+			res.status(STATUS.INTERNAL_SERVER_ERROR).send({
+				error: 'INTERNAL_SERVER_ERROR',
+				message: 'Something went wrong.',
+			})
+		);
 	}
 	
 }
