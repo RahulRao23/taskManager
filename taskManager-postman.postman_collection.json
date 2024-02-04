@@ -1,0 +1,445 @@
+{
+	"info": {
+		"_postman_id": "8b642c80-382e-4eb8-8853-7e55dc742774",
+		"name": "taskManager-postman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28941753",
+		"_collection_link": "https://www.postman.com/rahulrao05/workspace/taskmanager/collection/28941753-8b642c80-382e-4eb8-8853-7e55dc742774?action=share&source=collection_link&creator=28941753"
+	},
+	"item": [
+		{
+			"name": "task",
+			"item": [
+				{
+					"name": "task getAllUserTask",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "page",
+									"value": "1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/task/getAllUserTask?page=1&limit=10",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task",
+								"getAllUserTask"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": "task",
+									"disabled": true
+								},
+								{
+									"key": "due_date",
+									"value": "2024/02/05",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "2",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "task createTask",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"",
+									"if(response.data?._id)",
+									"    pm.environment.set(\"taskId\", response.data._id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "title",
+									"value": "task 1",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "task description",
+									"type": "text"
+								},
+								{
+									"key": "due_date",
+									"value": "2024/02/04",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/task/createTask",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task",
+								"createTask"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "task updateTask",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "task_id",
+									"value": "{{taskId}}",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "3",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/task/updateTask",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task",
+								"updateTask"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "task deleteTask",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "task_id",
+									"value": "{{taskId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/task/deleteTask",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task",
+								"deleteTask"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "subTask",
+			"item": [
+				{
+					"name": "subTask getAllUserSubTasks",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{url}}/subTask/getAllUserSubTasks",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subTask",
+								"getAllUserSubTasks"
+							],
+							"query": [
+								{
+									"key": "task_id",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "subTask createSubTask",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "task_id",
+									"value": "65bdf35196a43fd9e040710a",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "sub task 3",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/subTask/createSubTask",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subTask",
+								"createSubTask"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "subTask updateSubTask",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "sub_task_id",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/subTask/updateSubTask",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subTask",
+								"updateSubTask"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "subTask deleteSubTask",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "auth_token",
+								"value": "{{authTk}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "sub_task_id",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/subTask/deleteSubTask",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subTask",
+								"deleteSubTask"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user createUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();",
+							"",
+							"if(response.data?.auth_token)",
+							"    pm.environment.set(\"authTk\", response.data.auth_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "phone_number",
+							"value": "9148473657",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/user/createUser",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"createUser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user getCallbackResponse",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\n\"AccountSid\":\n\"AC5c413077a5c8761cda8a2da53bd3e327\",\n\"ApiVersion\":\n\"2010-04-01\",\n\"CallSid\":\n\"CA92b3e79dcaebfc9147a640df2dfe18ab\",\n\"CallStatus\":\n\"in-progress\",\n\"CallbackSource\":\n\"call-progress-events\",\n\"Called\":\n\"+919148473657\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/user/getCallbackResponse",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"getCallbackResponse"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
