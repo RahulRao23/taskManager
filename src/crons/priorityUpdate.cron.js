@@ -111,6 +111,9 @@ const priorityUpdateHandler = async () => {
 module.exports = priorityUpdateHandler;
 
 
+/* DEBUG: Uncomment below function call to run the script for testing */
+// priorityUpdateHandler();
+
 /* Uncomment below code to run cron on pm2 process at specified intervals of time */
 
 // const callAtSpecificInterval = async () => {

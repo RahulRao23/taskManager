@@ -49,7 +49,8 @@ const notifyUserHandler = async () => {
 
 module.exports = notifyUserHandler;
 
-notifyUserHandler();
+/* DEBUG: Uncomment below function call to run the script for testing */
+// notifyUserHandler();
 
 /* Uncomment below code to run cron on pm2 process at specified intervals of time */
 
